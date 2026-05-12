@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gerenciador Python Web</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Python + Flask</p>
+          <h1>Gerenciador de tarefas</h1>
+        </div>
+        <div class="total-box">
+          <span>{{ total_tasks }}</span>
+          <small>tarefas</small>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="messages" aria-live="polite">
+            {% for category, message in messages %}
+              <p class="message {{ category }}">{{ message }}</p>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      <section class="workspace">
+        <aside class="sidebar">
+          <form class="panel" action="{{ url_for('create_task') }}" method="post">
+            <h2>Nova tarefa</h2>
+            <label>
+              Titulo
+              <input name="title" placeholder="Ex: Estudar Flask" required>
+            </label>
+            <label>
+              Responsavel
+              <input name="responsible" placeholder="Ex: Caua" required>
+            </label>
+            <button type="submit">Adicionar</button>
+          </form>
+
+          <form class="panel" action="{{ url_for('create_status') }}" method="post">
+            <h2>Novo status</h2>
+            <label>
+              Nome do status
+              <input name="name" placeholder="Ex: Revisando" required>
+            </label>
+            <button type="submit" class="secondary">Criar status</button>
+          </form>
+
+          <form action="{{ url_for('clear_tasks') }}" method="post">
+            <button class="danger ghost" type="submit">Limpar tarefas</button>
+          </form>
+        </aside>
+
+        <section class="task-area">
+          <nav class="filters" aria-label="Filtros de status">
+            <a class="{{ 'active' if selected_status == 'Todos' else '' }}" href="{{ url_for('index') }}">
+              Todos <span>{{ total_tasks }}</span>
+            </a>
+            {% for status in statuses %}
+              <a class="{{ 'active' if selected_status == status else '' }}" href="{{ url_for('index', status=status) }}">
+                {{ status }} <span>{{ counters[status] }}</span>
+              </a>
+            {% endfor %}
+          </nav>
+
+          {% if tasks %}
+            <div class="task-list">
+              {% for task in tasks %}
+                <article class="task-card">
+                  <div class="task-main">
+                    <span class="status-dot"></span>
+                    <div>
+                      <h2>{{ task.title }}</h2>
+                      <p>{{ task.responsible }}</p>
+                    </div>
+                  </div>
+                  <form class="task-actions" action="{{ url_for('update_task_status', task_id=task.id) }}" method="post">
+                    <input type="hidden" name="current_filter" value="{{ selected_status }}">
+                    <select name="status" aria-label="Alterar status">
+                      {% for status in statuses %}
+                        <option value="{{ status }}" {{ 'selected' if task.status == status else '' }}>{{ status }}</option>
+                      {% endfor %}
+                    </select>
+                    <button type="submit" class="secondary">Salvar</button>
+                  </form>
+                  <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post">
+                    <input type="hidden" name="current_filter" value="{{ selected_status }}">
+                    <button type="submit" class="danger">Remover</button>
+                  </form>
+                </article>
+              {% endfor %}
+            </div>
+          {% else %}
+            <section class="empty-state">
+              <h2>Nenhuma tarefa encontrada</h2>
+              <p>Adicione uma nova tarefa ou escolha outro filtro de status.</p>
+            </section>
+          {% endif %}
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

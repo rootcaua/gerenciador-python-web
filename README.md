@@ -1,6 +1,6 @@
 # Gerenciador Python Web
 
-Versao web do gerenciador de tarefas em Python. O app usa Flask e mantem as tarefas em memoria enquanto o servidor esta ligado.
+Versao web do gerenciador de tarefas em Python. O app usa Flask e mantem as tarefas em memoria enquanto o servidor esta ligado
 
 ## Funcionalidades
 
